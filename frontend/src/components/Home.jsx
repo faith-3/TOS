@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../App";
+import { AuthContext } from "../context/AuthContext";
 import carImg from "../assets/car22.png";
 import logo from "../assets/tblogo.png";
 
@@ -24,15 +24,15 @@ const testimonials = [
 
 function Home() {
   const { isAuthenticated } = useContext(AuthContext);
+  const hasDriverId = (() => { try { return !!localStorage.getItem('driverId'); } catch { return false; } })();
   const navigate = useNavigate();
   const [testimonialIdx, setTestimonialIdx] = useState(0);
 
-  const handleBookDriver = () => {
-    if (isAuthenticated) {
-      navigate("/book-driver");
-    } else {
-      navigate("/login");
-    }
+  const handleBookNow = () => {
+    if (isAuthenticated) navigate("/book-driver"); else navigate("/login");
+  };
+  const handleRegisterDriver = () => {
+    navigate("/driver/register");
   };
 
   const handleBackToTop = () => {
@@ -53,10 +53,15 @@ function Home() {
         <div className="flex-1 flex flex-col items-start justify-center">
           <h1 className="text-4xl md:text-6xl font-bold text-blue-900 mb-6 leading-tight">Welcome to Tubyikorere</h1>
           <p className="text-lg md:text-2xl max-w-xl mb-8 text-gray-700">Easily rent a professional driver when you’re not in the mood or unable to drive. Stay safe, avoid driving under the influence, and get home comfortably with our trusted drivers.</p>
-          <button onClick={handleBookDriver} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-3xl shadow-lg transition text-lg">Book a Driver Now</button>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button onClick={handleBookNow} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-3xl shadow-lg transition text-lg">Book a Driver Now</button>
+            {!hasDriverId && (
+              <button onClick={handleRegisterDriver} className="bg-white border border-orange-500 text-orange-600 hover:bg-orange-50 font-bold py-3 px-8 rounded-3xl shadow-sm transition text-lg">Register as a Driver Today</button>
+            )}
+          </div>
         </div>
         <div className="flex-1 flex justify-center items-center">
-          <img src={carImg} alt="Car" className="w-80 md:w-[28rem] rounded-xl shadow-lg object-contain" />
+          <img src={carImg} alt="Car" className="w-100 md:w-full object-contain" />
         </div>
       </div>
 

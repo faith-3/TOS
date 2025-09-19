@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum BookingStatus {
+  Pending
+  Scheduled
+  Completed
+  Cancelled
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      String    @default("user")
+  createdAt DateTime  @default(now())
+  address   String?
+  nickname  String?
+  dob       DateTime?
+  photoUrl  String?
+
+  bookings  Booking[]
+  ratings   Rating[]
+  driver    Driver?
+}
+
+model Driver {
+  id         String    @id @default(uuid())
+  name       String
+  rating     Float     @default(0)
+  distanceKm Float?
+  location   String?
+  available  Boolean   @default(false)
+  photoUrl   String?
+  phone      String?
+  email      String?
+  vehicleType String?
+  plateNumber String?
+  experienceYears Int?
+  pricePerKm Float?
+  bio        String?
+  createdAt  DateTime  @default(now())
+
+  bookings   Booking[]
+  ratings    Rating[]
+
+  // Link to User who owns this driver profile
+  userId     String?   @unique
+  user       User?     @relation(fields: [userId], references: [id])
+}
+
+model Booking {
+  id        String         @id @default(uuid())
+  pickup    String
+  dropoff   String
+  when      DateTime
+  notes     String?
+  status    BookingStatus  @default(Pending)
+  createdAt DateTime       @default(now())
+
+  // Relations
+  userId    String?
+  user      User?          @relation(fields: [userId], references: [id])
+
+  driverId  String?
+  driver    Driver?        @relation(fields: [driverId], references: [id])
+}
+
+model Rating {
+  id        String   @id @default(uuid())
+  score     Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  driverId  String
+  driver    Driver   @relation(fields: [driverId], references: [id])
+}
